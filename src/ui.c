@@ -873,7 +873,13 @@ void BarUiStartEventCmd (const BarSettings_t *settings, const char *type,
 		pthread_mutex_lock (&player->lock);
 		const unsigned int songDuration = player->songDuration;
 		const unsigned int songPlayed = player->songPlayed;
+		const bool doPause = player->doPause;
 		pthread_mutex_unlock (&player->lock);
+
+		fprintf(pipeWriteFd,
+				"playerPaused=%s\n",
+				doPause ? "true" : "false"
+				);
 
 		fprintf (pipeWriteFd,
 				"artist=%s\n"
@@ -918,7 +924,7 @@ void BarUiStartEventCmd (const BarSettings_t *settings, const char *type,
 
 			for (size_t i = 0; i < stationCount; i++) {
 				const PianoStation_t *currStation = sortedStations[i];
-				fprintf (pipeWriteFd, "station%zd=%s\n", i,
+				fprintf (pipeWriteFd, "station%zd=[%s,%s]\n", i, currStation->id,
 						currStation->name);
 			}
 			free (sortedStations);

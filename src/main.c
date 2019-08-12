@@ -263,7 +263,7 @@ static void BarMainStartPlayback (BarApp_t *app, pthread_t *playerThread) {
 		interrupted = &app->player.interrupted;
 
 		/* throw event */
-		BarUiStartEventCmd (&app->settings, "songstart",
+		BarUiStartEventCmd (&app->settings, "songwaiting",
 				app->curStation, curSong, &app->player, app->ph.stations,
 				PIANO_RET_OK, CURLE_OK);
 
@@ -334,6 +334,9 @@ static void BarMainPrintTime (BarApp_t *app) {
 
 /*	main loop
  */
+
+BarPlayerMode previousMode;
+
 static void BarMainLoop (BarApp_t *app) {
 	pthread_t playerThread;
 
@@ -388,6 +391,11 @@ static void BarMainLoop (BarApp_t *app) {
 
 		/* show time */
 		if (BarPlayerGetMode (player) == PLAYER_PLAYING) {
+			if (previousMode != PLAYER_PLAYING) {
+				BarUiStartEventCmd (&app->settings, "songplaying", app->curStation,
+					app->playlist, &app->player, app->ph.stations, PIANO_RET_OK,
+					CURLE_OK);
+			}
 			BarMainPrintTime (app);
 		}
 	}
@@ -395,6 +403,8 @@ static void BarMainLoop (BarApp_t *app) {
 	if (BarPlayerGetMode (player) != PLAYER_DEAD) {
 		pthread_join (playerThread, NULL);
 	}
+
+	previousMode = BarPlayerGetMode (player);
 }
 
 sig_atomic_t *interrupted = NULL;

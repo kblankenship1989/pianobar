@@ -444,6 +444,9 @@ BarUiActCallback(BarUiActTogglePause) {
 	app->player.doPause = !app->player.doPause;
 	pthread_cond_broadcast (&app->player.cond);
 	pthread_mutex_unlock (&app->player.lock);
+	BarUiStartEventCmd (&app->settings, "togglePause", app->curStation,
+		app->playlist, &app->player, app->ph.stations, PIANO_RET_OK,
+		CURLE_OK);
 }
 
 /*	rename current station
